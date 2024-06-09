@@ -13,6 +13,7 @@ abstract class ITaskStatusRepository {
       getMontlyHistory({
     required int year,
     required Month month,
+    required bool isFistInteration,
   });
 
   Future<Result<TaskHistoryDailyModel, TaskStatusExceptions>> getDailyHistory({

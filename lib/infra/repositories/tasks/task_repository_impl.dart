@@ -1,4 +1,4 @@
-import 'package:result_dart/src/result.dart';
+import 'package:result_dart/result_dart.dart';
 import 'package:todopool/infra/exceptions/task_status_exceptions.dart';
 import 'package:todopool/infra/models/task_model.dart';
 import 'package:todopool/infra/models/task_pool_model.dart';
@@ -13,7 +13,14 @@ class TaskRepositoryImpl implements ITaskRepository {
 
   @override
   Future<Result<TaskPoolModel, TaskStatusExceptions>> getPool() {
-    return _source.getPool();
+    return _source.getPool().flatMapError((TaskStatusExceptions error) {
+      return error.maybeMap(
+        dontExistAnyData: (value) {
+          return TaskPoolModel(tasks: []).toSuccess();
+        },
+        orElse: () => error.toFailure(),
+      );
+    });
   }
 
   @override
@@ -28,7 +35,6 @@ class TaskRepositoryImpl implements ITaskRepository {
 
   @override
   Future<Result<TaskModel, TaskStatusExceptions>> saveTask(TaskModel id) {
-    // TODO: implement saveTask
-    throw UnimplementedError();
+    return _source.saveTask(id);
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1028560305178",
+    "project_id": "todopool",
+    "storage_bucket": "todopool.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028560305178:android:027da5e996e852796c25a3",
+        "android_client_info": {
+          "package_name": "com.pooltodo.todopool"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQ9WZyR-MFgWpUJKSnwHyrCFZhT3ykGG4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

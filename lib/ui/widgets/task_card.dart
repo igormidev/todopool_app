@@ -57,7 +57,8 @@ class TaskCard extends StatelessWidget {
               children: [
                 const SizedBox(height: 4),
                 Text(
-                  '${title}mode is the promissing task that I want asdj asdj',
+                  // '${title}mode is the promissing task that I want asdj asdj',
+                  title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context)

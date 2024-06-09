@@ -16,10 +16,12 @@ class TaskStatusRepositoryImpl implements ITaskStatusRepository {
       getMontlyHistory({
     required int year,
     required Month month,
+    required bool isFistInteration,
   }) async {
     final dailyResult = await _source.getMontlyHistory(
       year: year,
       month: month,
+      isFistInteration: isFistInteration,
     );
 
     return dailyResult;

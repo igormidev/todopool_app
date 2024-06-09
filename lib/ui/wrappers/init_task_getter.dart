@@ -1,19 +1,24 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todopool/core/store/extensions.dart';
-import 'package:todopool/core/store/states.dart';
-import 'package:todopool/infra/exceptions/task_status_exceptions.dart';
 import 'package:todopool/infra/models/task_history_models/task_history_daily_model.dart';
 import 'package:todopool/infra/models/task_pool_model.dart';
+import 'package:todopool/infra/models/user_stats.dart';
 import 'package:todopool/interactor/cubits/daily_tasks_cubit.dart';
 import 'package:todopool/interactor/cubits/most_recent_cubit.dart';
 import 'package:todopool/interactor/cubits/pool_task_cubit.dart';
+import 'package:todopool/interactor/cubits/user_configurations_cubit.dart';
 import 'package:todopool/ui/components/default_app_error.dart';
+import 'package:todopool/ui/elements/bloc_store_builder.dart';
+import 'package:todopool/ui/elements/bloc_store_listener.dart';
 
 class InitTaskGetter extends StatefulWidget {
-  final Widget Function(TaskHistoryDailyModel dailyModel) builder;
+  final Widget Function(
+    TaskHistoryDailyModel dailyModel,
+    UserStats userStats,
+    TaskPoolModel taskPoolModel,
+  ) builder;
   const InitTaskGetter({
     super.key,
     required this.builder,
@@ -30,6 +35,8 @@ class _InitTaskGetterState extends State<InitTaskGetter> {
 
     final mostRecentCubit = context.read<MostRecentCubit>();
     mostRecentCubit.getMostRecentStatus();
+    final userConfigurations = context.read<UserConfigurationsCubit>();
+    userConfigurations.getUserStats();
   }
 
   @override
@@ -37,9 +44,8 @@ class _InitTaskGetterState extends State<InitTaskGetter> {
     final todaysTaskCubit = context.read<DailyTasksCubit>();
     final taskPoolCubit = context.read<PoolTaskCubit>();
 
-    return BlocListener<MostRecentCubit,
-        StoreState<TaskHistoryDailyModel, TaskStatusExceptions>>(
-      listener: (context, state) {
+    return BlocStoreListener<MostRecentCubit, TaskHistoryDailyModel>(
+      listener: (state) {
         state.whenOrNull(
           loadedData: (data) {
             taskPoolCubit.getPool(
@@ -48,31 +54,66 @@ class _InitTaskGetterState extends State<InitTaskGetter> {
           },
         );
       },
-      child: BlocListener<PoolTaskCubit,
-          StoreState<TaskPoolModel, TaskStatusExceptions>>(
-        listener: (context, state) {
+      child: BlocStoreListener<PoolTaskCubit, TaskPoolModel>(
+        listener: (state) {
           state.whenOrNull(
             loadedData: (data) {
               taskPoolCubit.emitData(data);
-              unawaited(todaysTaskCubit.getDailyHistory(
-                currentPool: data,
-              ));
+              final mostRecentCubit = context.read<MostRecentCubit>();
+
+              final mostRecent = mostRecentCubit.state.dataOrNull;
+              if (mostRecent != null) {
+                unawaited(todaysTaskCubit.getDailyHistory(
+                  currentPool: data,
+                  mostRecent: mostRecent,
+                ));
+              }
             },
           );
         },
-        child: BlocBuilder<DailyTasksCubit,
-            StoreState<TaskHistoryDailyModel, TaskStatusExceptions>>(
-          bloc: todaysTaskCubit,
-          builder: (context, state) {
+        child: BlocStoreBuilder<MostRecentCubit, TaskHistoryDailyModel>(
+          builder: (state) {
             return state.whenContent(
-              withData: (TaskHistoryDailyModel data) {
-                return widget.builder(data);
-              },
-              loading: () {
-                return const Center(
-                  child: CircularProgressIndicator(),
+              withData: (_) {
+                return BlocStoreBuilder<PoolTaskCubit, TaskPoolModel>(
+                  builder: (state) {
+                    return state.whenContent(
+                      withData: (taskPoolData) {
+                        return BlocStoreBuilder<UserConfigurationsCubit,
+                            UserStats>(
+                          builder: (state) {
+                            return state.whenContent(
+                              withData: (userStats) {
+                                return BlocStoreBuilder<DailyTasksCubit,
+                                    TaskHistoryDailyModel>(
+                                  builder: (state) {
+                                    return state.whenContent(
+                                      withData: (taskHistoryData) {
+                                        return widget.builder(
+                                          taskHistoryData,
+                                          userStats,
+                                          taskPoolData,
+                                        );
+                                      },
+                                      loading: () => loading,
+                                      withError: DefaultAppError.new,
+                                    );
+                                  },
+                                );
+                              },
+                              loading: () => loading,
+                              withError: DefaultAppError.new,
+                            );
+                          },
+                        );
+                      },
+                      loading: () => loading,
+                      withError: DefaultAppError.new,
+                    );
+                  },
                 );
               },
+              loading: () => loading,
               withError: DefaultAppError.new,
             );
           },
@@ -81,3 +122,7 @@ class _InitTaskGetterState extends State<InitTaskGetter> {
     );
   }
 }
+
+const Widget loading = Center(
+  child: CircularProgressIndicator(),
+);

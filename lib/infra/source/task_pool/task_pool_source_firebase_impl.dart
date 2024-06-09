@@ -26,6 +26,7 @@ class TaskPoolSourceFirebaseImpl implements ITaskPoolSource {
     try {
       final poolResponse =
           await _firestore.collection('users_pools').doc(userId).get();
+
       final poolDataJson = poolResponse.data();
       if (!poolResponse.exists || poolDataJson == null) {
         return TaskStatusExceptions.dontExistAnyData(

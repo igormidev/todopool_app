@@ -21,3 +21,11 @@ abstract class TaskStatusModel with _$TaskStatusModel {
   factory TaskStatusModel.fromJson(Map<String, dynamic> json) =>
       _$TaskStatusModelFromJson(json);
 }
+
+extension TaskStatusModelExtension on TaskStatusModel {
+  bool get isDone => activityMode.map(
+        stillNotDone: (_) => false,
+        declined: (_) => false,
+        done: (_) => true,
+      );
+}

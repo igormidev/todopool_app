@@ -65,9 +65,7 @@ class TaskFormCubit extends FoldableBloc<TaskFormState, TaskStatusExceptions> {
   void startFromExistingTask(TaskModel taskModel) {
     emitData(TaskFormState.editing(
       previousTask: taskModel,
-      taskFormDto: TaskFormStateDto.fromTaskModel(
-        taskModel: taskModel,
-      ),
+      taskFormDto: taskModel.toTaskFormStateDto(),
     ));
   }
 

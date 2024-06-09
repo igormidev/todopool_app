@@ -14,10 +14,12 @@ class GetMostRecentStatusUsecase {
   Future<Result<TaskHistoryDailyModel, TaskStatusExceptions>> call({
     required int year,
     required Month month,
+    bool isFistInteration = true,
   }) async {
     final result = await _repository.getMontlyHistory(
       year: year,
       month: month,
+      isFistInteration: isFistInteration,
     );
 
     return result //
@@ -43,11 +45,19 @@ class GetMostRecentStatusUsecase {
           if (month == Month.january) {
             final previousYear = year - 1;
             const previousMonth = Month.december;
-            return await call(year: previousYear, month: previousMonth);
+            return await call(
+              year: previousYear,
+              month: previousMonth,
+              isFistInteration: false,
+            );
           }
 
           final previousMonth = month.previousMonth;
-          return await call(year: year, month: previousMonth);
+          return await call(
+            year: year,
+            month: previousMonth,
+            isFistInteration: false,
+          );
         },
         orElse: () => failure.toFailure(),
       );

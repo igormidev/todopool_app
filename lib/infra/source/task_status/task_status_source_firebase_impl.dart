@@ -39,10 +39,25 @@ class TaskStatusSourceFirebaseImpl implements ITaskStatusSource {
 
       final taskStatusData = taskStatus.data();
 
-      if (taskStatusData == null) {
-        return TaskStatusExceptions.notFound(
-          message: 'No data found for the day $day of $month, $year',
-        ).toFailure();
+      final doesTaskNotExist = !taskStatus.exists || taskStatusData == null;
+
+      if (doesTaskNotExist) {
+        bool userHasAnyData = true;
+
+        final taskStatusIsAlreadyCreated =
+            await _firestore.collection('task_status').doc(userId).get();
+
+        userHasAnyData = taskStatusIsAlreadyCreated.exists;
+
+        if (userHasAnyData) {
+          return TaskStatusExceptions.notFound(
+            message: 'No data found for the month $month, $year',
+          ).toFailure();
+        } else {
+          return TaskStatusExceptions.dontExistAnyData(
+            message: 'No data found for the user. Creating initial data.',
+          ).toFailure();
+        }
       }
       try {
         return TaskHistoryDailyModel.fromJson(taskStatusData).toSuccess();
@@ -66,6 +81,7 @@ class TaskStatusSourceFirebaseImpl implements ITaskStatusSource {
       getMontlyHistory({
     required int year,
     required Month month,
+    required bool isFistInteration,
   }) async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
@@ -81,11 +97,27 @@ class TaskStatusSourceFirebaseImpl implements ITaskStatusSource {
           .get();
 
       final taskStatusData = taskStatus.data();
+      final doesTaskNotExist = !taskStatus.exists || taskStatusData == null;
 
-      if (taskStatusData == null) {
-        return TaskStatusExceptions.notFound(
-          message: 'No data found for the month $month, $year',
-        ).toFailure();
+      if (doesTaskNotExist) {
+        bool userHasAnyData = true;
+
+        if (isFistInteration) {
+          final taskStatusIsAlreadyCreated =
+              await _firestore.collection('task_status').doc(userId).get();
+
+          userHasAnyData = taskStatusIsAlreadyCreated.exists;
+        }
+
+        if (userHasAnyData) {
+          return TaskStatusExceptions.notFound(
+            message: 'No data found for the month $month, $year',
+          ).toFailure();
+        } else {
+          return TaskStatusExceptions.dontExistAnyData(
+            message: 'No data found for the user. Creating initial data.',
+          ).toFailure();
+        }
       }
       try {
         return TaskHistoryMontlyModel.fromJson(taskStatusData).toSuccess();
@@ -95,7 +127,8 @@ class TaskStatusSourceFirebaseImpl implements ITaskStatusSource {
               'Fatal error while parsing the data from the server. Please contact support.',
         ).toFailure();
       }
-    } catch (_) {
+    } catch (_, s) {
+      print('$_\n\n$s');
       return TaskStatusExceptions.standard(
         message:
             'Server error while getting your monthly history from the server. '

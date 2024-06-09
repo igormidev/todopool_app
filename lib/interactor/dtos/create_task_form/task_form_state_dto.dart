@@ -29,33 +29,9 @@ abstract class TaskFormStateDto with _$TaskFormStateDto {
         doneLimit: CreateTaskFormSelectDoneLimitDto.undefined(),
         step: ECreateTaskStep.generalInfo,
       );
-  factory TaskFormStateDto.fromTaskModel({
-    required TaskModel taskModel,
-  }) =>
-      TaskFormStateDto(
-        generalInfo: CreateTaskFormGeneralInfosDto(
-          title: taskModel.title,
-          description: taskModel.description,
-          importantLevel: taskModel.importantLevel,
-          pontuation: taskModel.pontuation,
-          urgencyLevel: taskModel.urgencyLevel,
-          tagsIds: taskModel.tagsIds,
-        ),
-        whichDays: CreateTaskFormWhichDaysDto.selected(
-          dayRecurrency: taskModel.dayRecurrency,
-        ),
-        whichHours: CreateTaskFormWhichHoursDto.selected(
-          taskHoursToCompleteScope: taskModel.hoursScope,
-        ),
-        doingMode: CreateTaskFormSelectDoingModeDto.selected(
-          doingMode: taskModel.doingMode,
-        ),
-        doneLimit: CreateTaskFormSelectDoneLimitDto.selected(
-          doneLimit: taskModel.taskDoneLimit,
-        ),
-        step: ECreateTaskStep.generalInfo,
-      );
+}
 
+extension TaskFormStateDtoExtension on TaskFormStateDto {
   TaskModel? toModel() {
     final title = generalInfo.title;
     final description = generalInfo.description;
@@ -117,4 +93,30 @@ abstract class TaskFormStateDto with _$TaskFormStateDto {
       previousVersions: [],
     );
   }
+}
+
+extension TaskModelExtension on TaskModel {
+  TaskFormStateDto toTaskFormStateDto() => TaskFormStateDto(
+        generalInfo: CreateTaskFormGeneralInfosDto(
+          title: title,
+          description: description,
+          importantLevel: importantLevel,
+          pontuation: pontuation,
+          urgencyLevel: urgencyLevel,
+          tagsIds: tagsIds,
+        ),
+        whichDays: CreateTaskFormWhichDaysDto.selected(
+          dayRecurrency: dayRecurrency,
+        ),
+        whichHours: CreateTaskFormWhichHoursDto.selected(
+          taskHoursToCompleteScope: hoursScope,
+        ),
+        doingMode: CreateTaskFormSelectDoingModeDto.selected(
+          doingMode: doingMode,
+        ),
+        doneLimit: CreateTaskFormSelectDoneLimitDto.selected(
+          doneLimit: taskDoneLimit,
+        ),
+        step: ECreateTaskStep.generalInfo,
+      );
 }

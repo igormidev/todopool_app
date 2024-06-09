@@ -20,8 +20,8 @@ class FoldableBloc<D, E> extends Cubit<StoreState<D, E>> {
     emit(const LoadedSuccessfully());
   }
 
-  void emitSucessProcessing() {
-    final D? data = state.dataOrNull;
+  void emitSucessProcessing([D? newData]) {
+    final D? data = newData ?? state.dataOrNull;
     if (data == null) {
       emit(const LoadedSuccessfully());
     } else {

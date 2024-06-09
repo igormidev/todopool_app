@@ -119,58 +119,114 @@ class CreateTaskFormState extends State<CreateTaskForm> {
               children: [
                 const SizedBox(width: 16),
                 ValueListenableBuilder(
-                    valueListenable: currentPage,
-                    builder: (context, index, _) {
-                      return IconButton(
-                        onPressed: index == 0
-                            ? null
-                            : () {
-                                pgController.previousPage(
-                                  duration: Durations.long1,
-                                  curve: Curves.ease,
-                                );
-                              },
-                        icon: const Icon(Icons.arrow_back_ios),
+                  valueListenable: currentPage,
+                  builder: (context, index, _) {
+                    return IconButton(
+                      onPressed: index == 0
+                          ? null
+                          : () {
+                              pgController.previousPage(
+                                duration: Durations.long1,
+                                curve: Curves.ease,
+                              );
+                            },
+                      icon: const Icon(Icons.arrow_back_ios),
+                    );
+                  },
+                ),
+                const Spacer(),
+                ValueListenableBuilder(
+                  valueListenable: currentPage,
+                  builder: (context, index, _) {
+                    return IconButton(
+                      onPressed: index == 0
+                          ? null
+                          : () {
+                              pgController.animateToPage(
+                                0,
+                                duration: Durations.long1,
+                                curve: Curves.ease,
+                              );
+                              // pgController.animateToPage(
+                              //   (pgController.page?.toInt() ?? 0) + 1,
+                              //   duration: const Duration(milliseconds: 500),
+                              //   curve: Curves.ease,
+                              // );
+                            },
+                      icon: Icon(
+                        Icons.keyboard_double_arrow_left_outlined,
+                        size: 40,
+                        color: Colors.grey[700],
+                      ),
+                    );
+                  },
+                ),
+                Center(
+                  child: SmoothPageIndicator(
+                    controller: pgController,
+                    count: 6,
+                    effect: const ScrollingDotsEffect(),
+                    // effect: const WormEffect(),
+                    onDotClicked: (index) {
+                      pgController.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.ease,
                       );
-                    }),
-                Expanded(
-                  child: Center(
-                    child: SmoothPageIndicator(
-                      controller: pgController,
-                      count: 6,
-                      effect: const ScrollingDotsEffect(),
-                      // effect: const WormEffect(),
-                      onDotClicked: (index) {
-                        pgController.animateToPage(
-                          index,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.ease,
-                        );
-                      },
-                    ),
+                    },
                   ),
                 ),
                 ValueListenableBuilder(
-                    valueListenable: currentPage,
-                    builder: (context, index, _) {
-                      return IconButton(
-                        onPressed: index == 5
-                            ? null
-                            : () {
-                                if (pgController.page?.toInt() == 5) return;
+                  valueListenable: currentPage,
+                  builder: (context, index, _) {
+                    return IconButton(
+                      onPressed: index == 5
+                          ? null
+                          : () {
+                              if (pgController.page?.toInt() == 5) return;
 
-                                pgController.nextPage(
-                                    duration: Durations.long1,
-                                    curve: Curves.ease);
-                                // pgController.animateToPage(
-                                //   (pgController.page?.toInt() ?? 0) + 1,
-                                //   duration: const Duration(milliseconds: 500),
-                                //   curve: Curves.ease,
-                                // );
-                              },
-                        icon: const Icon(Icons.arrow_forward_ios_rounded),
-                      );
-                    }),
+                              pgController.animateToPage(
+                                5,
+                                duration: Durations.long1,
+                                curve: Curves.ease,
+                              );
+                              // pgController.animateToPage(
+                              //   (pgController.page?.toInt() ?? 0) + 1,
+                              //   duration: const Duration(milliseconds: 500),
+                              //   curve: Curves.ease,
+                              // );
+                            },
+                      icon: Icon(
+                        Icons.keyboard_double_arrow_right_outlined,
+                        size: 40,
+                        color: Colors.grey[700],
+                      ),
+                    );
+                  },
+                ),
+                const Spacer(),
+                ValueListenableBuilder(
+                  valueListenable: currentPage,
+                  builder: (context, index, _) {
+                    return IconButton(
+                      onPressed: index == 5
+                          ? null
+                          : () {
+                              if (pgController.page?.toInt() == 5) return;
+
+                              pgController.nextPage(
+                                  duration: Durations.long1,
+                                  curve: Curves.ease);
+                              // pgController.animateToPage(
+                              //   (pgController.page?.toInt() ?? 0) + 1,
+                              //   duration: const Duration(milliseconds: 500),
+                              //   curve: Curves.ease,
+                              // );
+                            },
+                      icon: const Icon(Icons.arrow_forward_ios_rounded),
+                    );
+                  },
+                ),
                 const SizedBox(width: 16),
               ],
             ),

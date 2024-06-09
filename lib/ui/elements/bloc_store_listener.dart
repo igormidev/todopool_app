@@ -12,7 +12,7 @@ class BlocStoreListener<B extends FoldableBloc<S, TaskStatusExceptions>, S>
   final Widget child;
   const BlocStoreListener({
     super.key,
-    required this.displayErrorSnackbarWhenFailure,
+    this.displayErrorSnackbarWhenFailure = false,
     required this.listener,
     required this.child,
   });
